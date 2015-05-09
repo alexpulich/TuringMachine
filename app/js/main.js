@@ -11,9 +11,14 @@ var TuringMachine = function() {
             $('#clear-rules').on('click', _clearRules);
             $('#run').on('click', _runMachine);
             $('#step').on('click', _stepButton);
+            $('#stop').on('click', _stopButton);
+            _getStarted();
         },
 
-
+        _getStarted = function() {
+            $('#stop').prop('disabled', true);
+            $('#step').prop('disabled', true);
+        },
         //
         // Добавить ячейки в ленту
         //
@@ -137,13 +142,16 @@ var TuringMachine = function() {
             if (_checkConfig()) {
                 var checkbox = $('#by-step');
                 if (!checkbox.is(':checked')) {
-                    // for (var i = 0; i < counter; i++)
-
-                    // var timer = setTimeout(_step(), 500);
                     do {
                         _step();
-                    } while (_currentState !== _finalState) 
+                    } while (_currentState !== _finalState)
+                    $('#run').prop('disabled', false);
+                    $('#step').prop('disabled', true);
+                    $('#stop').prop('disabled', true);
                 } else {
+                    $('#run').prop('disabled', true);
+                    $('#step').prop('disabled', false);
+                    $('#stop').prop('disabled', false);
                     _step();
                 }
             } else {
@@ -156,8 +164,21 @@ var TuringMachine = function() {
         //
         _stepButton = function(e) {
             e.preventDefault();
-            _step();
+            if (_currentState !== _finalState) {
+                _step();
+            } else {
+                $('#run').prop('disabled', false);
+                $('#step').prop('disabled', true);
+                $('#stop').prop('disabled', true);
+            }
         },
+
+        _stopButton = function(e) {
+        	e.preventDefault();
+        	$('#run').prop('disabled', false);
+        	$('#step').prop('disabled', true);
+        	$('#stop').prop('disabled', true);
+        }
         //
         //Проверка настроек машины
         //
