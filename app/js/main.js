@@ -1,9 +1,11 @@
+"use strict"
+
 var TuringMachine = function() {
     var _currentState = 0, // текущее состояние
         _finalState = 1, // конечное состояние
-        _program = []; // массив правил (объекты)
+        _program = [], // массив правил (объекты)
 
-    _setUpListeners = function() {
+        _setUpListeners = function() {
             $('#machine-config').on('input', '#machine-content', _addCells);
             $('#rules-form').on('submit', _submitRule);
             $('#clear-rules').on('click', _clearRules);
@@ -62,10 +64,10 @@ var TuringMachine = function() {
             e.preventDefault();
             var rule = _checkRule();
             if (rule !== false) {
-            	_addTableRow(rule);
-            	_program.push(rule);
+                _addTableRow(rule);
+                _program.push(rule);
             } else {
-            	console.log('TODO: Не все поля заполнены!');
+                console.log('TODO: Не все поля заполнены!');
             }
         },
 
@@ -91,7 +93,7 @@ var TuringMachine = function() {
                     'action': action.val()
                 };
 
-   				return rule;
+                return rule;
 
             } else {
                 return false;
@@ -123,6 +125,7 @@ var TuringMachine = function() {
             var tableContent = $('#rules-table').find('tbody');
 
             tableContent.empty();
+            _program = [];
         },
 
         //
@@ -130,15 +133,19 @@ var TuringMachine = function() {
         //
         _runMachine = function(e) {
             e.preventDefault();
-            var counter = Tape.getCells().length;
+
             if (_checkConfig()) {
-            	var checkbox = $('#by-step');
-            	if (checkbox.checked) {
-	            	for (var i = 0; i < counter; i++)
-	                _step();
-	            } else {
-	            	_step();
-	            }
+                var checkbox = $('#by-step');
+                if (!checkbox.is(':checked')) {
+                    // for (var i = 0; i < counter; i++)
+
+                    // var timer = setTimeout(_step(), 500);
+                    do {
+                        _step();
+                    } while (_currentState !== _finalState) 
+                } else {
+                    _step();
+                }
             } else {
                 console.log('не прошёл чек крнфиг');
             }
@@ -148,9 +155,9 @@ var TuringMachine = function() {
         //Обработка нажатия на кнопку шага
         //
         _stepButton = function(e) {
-        	e.preventDefault();
-        	_step();
-        } 
+            e.preventDefault();
+            _step();
+        },
         //
         //Проверка настроек машины
         //
@@ -163,13 +170,13 @@ var TuringMachine = function() {
                 finalState.val().length) {
                 _currentState = currState.val();
                 _finalState = finalState.val();
-               	var currentCell = $('.current.cell'),
-               		firstcell = $('.cell:first-child');
+                var currentCell = $('.current.cell'),
+                    firstcell = $('.cell:first-child');
 
-               	if (currentCell !== firstcell) {
-	                $('.current').removeClass('current')
-         			firstcell.addClass('current');
-               	}
+                if (currentCell !== firstcell) {
+                    $('.current').removeClass('current')
+                    firstcell.addClass('current');
+                }
 
                 return true;
             } else {
@@ -182,40 +189,32 @@ var TuringMachine = function() {
         //Шаг машины
         //
         _step = function() {
-        	if (_currentState === _finalState) {
-        		_currentState
-        	}
+            // if (_currentState === _finalState) {
+            //     _currentState
+            // }
             var _current = $('.cell.current');
 
             for (var i = 0; i < _program.length; i++) {
                 var act = _program[i];
                 if (act.currState === _currentState && act.currSymb === _current.text()) {
-                    switch (act.action) {
-                    	case 'Right':
-		                    if (_current.next().length) {
-			                    _current.removeClass('current');
-			                    _current.next().addClass('current');
-		                    } else {
-		                    	console.log('TODO: Нет следующей ячейки!');
-		                    	return;
-		                    }
-		                    break;
-		                case 'Left':
-		                	if (_current.prev().length) {
-			                    _current.removeClass('current');
-			                	_current.prev().addClass('current');
-		                	} else {
-		                		console.log('TODO: Нет предыдущей ячейки!');
-		                		return;
-		                	}
-		                default: 
-		                	break;
-                    }
                     _currentState = act.newState;
                     _current.text(act.newSymb);
-
-                } else {
-                    console.log('нет правила для состояния ', _currentState, ' и символа ', _current.text());
+                    if (act.action === 'Right') {
+                        if (_current.next().length) {
+                            _current.removeClass('current');
+                            _current.next().addClass('current');
+                        } else {
+                            console.log('TODO: Нет следующей ячейки!');
+                        }
+                    } else if (act.action === 'Left') {
+                        if (_current.prev().length) {
+                            _current.removeClass('current');
+                            _current.prev().addClass('current');
+                        } else {
+                            console.log('TODO: Нет предыдущей ячейки!');
+                        }
+                    }
+                    return;
                 }
             }
         };
@@ -255,10 +254,10 @@ var Tape = function() {
                 element.text(_cells[i]);
                 tape.append(element);
             }
-        }
+        },
 
         _getCells = function() {
-        	return _cells;
+            return _cells;
         }
 
     return {
