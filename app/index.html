@@ -5,8 +5,12 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Машина Тьюринга</title>
+    <!-- build:css css/vendor.css -->
     <link rel="stylesheet" href="bower/bootstrap/dist/css/bootstrap.min.css">
+    <!-- endbuild -->
+    <!-- build:css css/main.css -->
     <link rel="stylesheet" href="css/main.css">
+    <!-- endbuild -->
 </head>
 
 <body>
@@ -16,9 +20,13 @@
                 <h1 class="text-center">Машина Тьюринга</h1>
                 <h3 class="text-center">Как пользоваться:</h3>
                 <ol>
-                    <li>Введите в поле ввода содержимого ленты значения ячеек (Значения должны быть числовыми).</li>
-                    <li>Затем</li>
-                    <li>Наконец</li>
+                    <li>Введите в поле ввода содержимого ленты значения ячеек.
+                        Поддерживается алфавит, состоящий только из цифр!
+                        Чтобы обозначить начальную ячейку, поставьте перед её значением символ " * ",
+                        например, 1021251*1238</li>
+                    <li>Заполните значения состояний. Начальное и конечно состояния не могут совпадать!</li>
+                    <li>Добавьте правила, заполнив соответствующие поля в блоке "Добавление правил" и нажав кнопку добавить</li>
+                    <li>Нажмите кнопку запустить. Если вы хотите выполнить программу пошагово - отметьте соответствующее поле</li>
                 </ol>
             </div>
         </div>
@@ -42,11 +50,11 @@
                     <div class="form-group">
                         <label for="start-state" class="col-sm-4">Начальное состояние:</label>
                         <div class="col-xs-2">
-                            <input type="text" class="form-control" id="start-state" placeholder="0">
+                            <input type="text" class="form-control" id="start-state" placeholder="0" data-toggle="tooltip" data-placement="top">
                         </div>
                         <label for="final-state" class="col-sm-4">Конечное состояние:</label>
                         <div class="col-xs-2">
-                            <input type="text" class="form-control" id="final-state" placeholder="1">
+                            <input type="text" class="form-control" id="final-state" placeholder="1" data-toggle="tooltip" data-placement="top">
                         </div>
                     </div>
                     <div class="form-group">
@@ -69,21 +77,21 @@
                     <div class="form-group">
                         <label for="current-state" class="col-sm-4">Текущее состояние:</label>
                         <div class="col-xs-2">
-                            <input type="text" class="form-control" id="current-state" placeholder="0">
+                            <input type="text" class="form-control" id="current-state" placeholder="0" data-toggle="tooltip" data-placement="left">
                         </div>
                         <label for="current-symbol" class="col-sm-4">Текущий символ:</label>
                         <div class="col-xs-2">
-                            <input type="text" class="form-control" id="current-symbol" placeholder="5">
+                            <input type="text" class="form-control" id="current-symbol" placeholder="5" data-toggle="tooltip" data-placement="right">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="new-state" class="col-sm-4">Новое состояние:</label>
                         <div class="col-xs-2">
-                            <input type="text" class="form-control" id="new-state" placeholder="1">
+                            <input type="text" class="form-control" id="new-state" placeholder="1" data-toggle="tooltip" data-placement="left">
                         </div>
                         <label for="new-symbol" class="col-sm-4">Новый символ:</label>
                         <div class="col-xs-2">
-                            <input type="text" class="form-control" id="new-symbol" placeholder="5">
+                            <input type="text" class="form-control" id="new-symbol" placeholder="5" data-toggle="tooltip" data-placement="right">
                         </div>
                     </div>
                     <div class="form-group">
@@ -108,8 +116,8 @@
             </div>
             <div class="col-md-6">
                 <h2 class="text-center">
-            		Список правил
-            	</h2>
+                    Список правил
+                </h2>
                 <table class="table table-hover" id="rules-table">
                     <thead>
                         <tr>
@@ -126,8 +134,13 @@
             </div>
         </div>
     </div>
+    <!-- build:js js/vendor.js -->
     <script src="bower/jquery/dist/jquery.min.js"></script>
+    <script src="bower/bootstrap/js/tooltip.js"></script>
+    <!-- endbuild -->
+    <!-- build:js js/vendor.js -->
     <script src="js/main.js"></script>
+    <!-- endbuild -->
 </body>
 
 </html>

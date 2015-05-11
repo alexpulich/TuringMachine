@@ -6,13 +6,32 @@ var TuringMachine = function() {
         _program = [], // массив правил (объекты)
 
         _setUpListeners = function() {
-            $('#machine-config').on('input', '#machine-content', _addCells);
-            $('#rules-form').on('submit', _submitRule);
-            $('#clear-rules').on('click', _clearRules);
-            $('#run').on('click', _runMachine);
-            $('#step').on('click', _stepButton);
-            $('#stop').on('click', _stopButton);
+            $('#machine-config').on('input', '#machine-content', _addCells); //ввод лленты
+            $('input').on('input', _hideTooltip); // убрать тултип при вводе данных
+            $('#rules-form').on('submit', _submitRule); //добавление правил
+            $('#clear-rules').on('click', _clearRules); //очистить лист правил
+            $('#run').on('click', _runMachine); // запуск машины
+            $('#step').on('click', _stepButton); // выполнение шага по нажатию на кнопку
+            $('#stop').on('click', _stopButton); // останов
+            $('table').on('click', 'tr', _editRule); // проба
             _getStarted();
+        },
+
+        _editRule = function() {
+            var row = $(this),
+                cells = row.find('td'),
+                currState = $('#current-state'),
+                currSymb = $('#current-symbol'),
+                newState = $('#new-state'),
+                newSymb = $('#new-symbol'),
+                action = $('#action');
+
+            row.addClass('editing-row');
+            currState.val($(cells[0]).text());
+            currSymb.val($(cells[1]).text());
+            newState.val($(cells[2]).text());
+            newSymb.val($(cells[3]).text());
+            action.val($(cells[4]).text());
         },
 
         _getStarted = function() {
@@ -27,9 +46,10 @@ var TuringMachine = function() {
                 val = input.val(),
                 block = $('#content-form-block'),
                 span = $('#tape-content'),
-                isValid = true;
+                isValid = true,
+                reg = /^[0-9\*]+$/;
 
-            if (isNaN(+val)) {
+            if (!reg.test(val)) {
                 _hasError(block, span);
                 isValid = false;
             } else {
@@ -67,12 +87,22 @@ var TuringMachine = function() {
         //
         _submitRule = function(e) {
             e.preventDefault();
+
+            console.log("Trying to add a rule...");
             var rule = _checkRule();
             if (rule !== false) {
-                _addTableRow(rule);
-                _program.push(rule);
+                var editing = $.find('.editing-row');
+                if (editing.length !== 0) {
+                    console.log("Editing the rule");
+                    $(editing[0]).removeClass('editing-row');
+                    _editTableRow(rule, $(editing[0]));
+                } else {
+                    _addTableRow(rule);
+                    _program.push(rule);
+                    console.log("The rule was added successful!");
+                }
             } else {
-                console.log('TODO: Не все поля заполнены!');
+                console.log("The rule wasn't added!");
             }
         },
 
@@ -85,8 +115,10 @@ var TuringMachine = function() {
                 currSymb = ruleform.find('#current-symbol'),
                 newState = ruleform.find('#new-state'),
                 newSymb = ruleform.find('#new-symbol'),
-                action = ruleform.find('#action option:selected');
+                action = ruleform.find('#action option:selected'),
+                msg = "Заполните поле!";
 
+            console.log("Checking if rule is valid...");
             if (currState.val().length && currSymb.val().length &&
                 newState.val().length && newSymb.val().length &&
                 action.val().length) {
@@ -97,10 +129,23 @@ var TuringMachine = function() {
                     'newSymb': newSymb.val(),
                     'action': action.val()
                 };
-
+                console.log("The rule is valid!");
                 return rule;
 
             } else {
+                console.log("The rule is not valid !");
+                if (currState.val().length === 0) {
+                    _showTooltip(currState, msg);
+                }
+                if (currSymb.val().length === 0) {
+                    _showTooltip(currSymb, msg);
+                }
+                if (newState.val().length === 0) {
+                    _showTooltip(newState, msg);
+                }
+                if (currState.val().length === 0) {
+                    _showTooltip(newSymb, msg);
+                }
                 return false;
             }
         },
@@ -121,12 +166,25 @@ var TuringMachine = function() {
             tableContent.append(row);
         },
 
+        _editTableRow = function(rule, row) {
+            var _rule = rule,
+                _cells = row.find('td'),
+                i = 0;
+
+            for (var key in _rule) {
+                $(_cells[i]).text(_rule[key])
+                i++;
+            }
+            console.log("Editing are saved");
+        },
+
         //
         //Удалить все правила
         //
         _clearRules = function(e) {
             e.preventDefault();
 
+            console.log("Cleaning rules list")
             var tableContent = $('#rules-table').find('tbody');
 
             tableContent.empty();
@@ -138,13 +196,18 @@ var TuringMachine = function() {
         //
         _runMachine = function(e) {
             e.preventDefault();
-
+            console.log('Running machine...');
             if (_checkConfig()) {
+                console.log("All data is ok...")
+                console.log("Run program");
                 var checkbox = $('#by-step');
                 if (!checkbox.is(':checked')) {
                     do {
+                    	// timer = setTimeout(function() {alert('asd');}, 1000);
+                    	// setTimeout(function() {_step();}, 1000);
                         _step();
                     } while (_currentState !== _finalState)
+                    console.log("Final state is achieved!")
                     $('#run').prop('disabled', false);
                     $('#step').prop('disabled', true);
                     $('#stop').prop('disabled', true);
@@ -154,8 +217,6 @@ var TuringMachine = function() {
                     $('#stop').prop('disabled', false);
                     _step();
                 }
-            } else {
-                console.log('не прошёл чек крнфиг');
             }
         },
 
@@ -174,11 +235,11 @@ var TuringMachine = function() {
         },
 
         _stopButton = function(e) {
-        	e.preventDefault();
-        	$('#run').prop('disabled', false);
-        	$('#step').prop('disabled', true);
-        	$('#stop').prop('disabled', true);
-        }
+            e.preventDefault();
+            $('#run').prop('disabled', false);
+            $('#step').prop('disabled', true);
+            $('#stop').prop('disabled', true);
+        },
         //
         //Проверка настроек машины
         //
@@ -187,23 +248,58 @@ var TuringMachine = function() {
                 currState = $('#start-state'),
                 finalState = $('#final-state');
 
-            if (program.val().length && currState.val().length &&
-                finalState.val().length) {
+            console.log("Cheking machine configuration...");
+            console.log(_program.length);
+            if (program.val().length && _program.length) {
+                console.log("Configuration fields and program list are not empty.")
+                if (!_checkStates()) {
+                    console.log("States checking failed...")
+                    return false;
+                }
                 _currentState = currState.val();
                 _finalState = finalState.val();
-                var currentCell = $('.current.cell'),
-                    firstcell = $('.cell:first-child');
-
-                if (currentCell !== firstcell) {
-                    $('.current').removeClass('current')
-                    firstcell.addClass('current');
-                }
-
                 return true;
             } else {
-                console.log('Конфигурация не заполнена');
+                console.log("Configuration fields or program list are empty.")
                 return false;
             }
+        },
+
+        _checkStates = function() {
+            var startState = $('#start-state'),
+                finalState = $('#final-state'),
+                equalState = "Начальное и конечное состояния совпадают!",
+                nullState = "Заполните поле";
+
+            console.log("Checking states...")
+            if (startState.val() === finalState.val()) {
+                _showTooltip(startState, equalState);
+                _showTooltip(finalState, equalState);
+                console.log("Start state equals final state!");
+                return false;
+            }
+            if (startState.val().length === 0) {
+                _showTooltip(startState, nullState);
+                console.log("Start state is empty");
+                return false;
+            }
+            if (finalState.val().length === 0) {
+                _showTooltip(finalState, nullState);
+                console.log("Final state is empty");
+                return false;
+            }
+            return true
+        },
+
+        _showTooltip = function(obj, msg) {
+            obj.tooltip({
+                title: msg,
+                trigger: "manual"
+            }).tooltip('show');
+        },
+
+        _hideTooltip = function() {
+            $(this).tooltip('destroy');
         },
 
         //
@@ -250,18 +346,26 @@ var Tape = function() {
     var _cells = [],
 
         _addCells = function(content) {
-            var cells = [];
+            var cells = [],
+                currPos = 0,
+                currCount = 0;
 
             for (var i = 0; i < content.length; i++) {
-                if (content[i] !== ' ')
+                if (content[i] === '*') {
+                	if (currCount === 0) {
+	                    currPos = i;
+	                    currCount++;
+                	}
+                } else {
                     cells.push(content[i]);
+                }
             }
             _cells = cells;
 
-            _drawCells();
+            _drawCells(currPos);
         },
 
-        _drawCells = function() {
+        _drawCells = function(pos) {
             var tape = $('.tape');
             tape.empty();
 
@@ -269,7 +373,7 @@ var Tape = function() {
                 var element = $('<li/>');
                 element.addClass('cell');
                 element.addClass('text-center');
-                if (i === 0) {
+                if (i === pos) {
                     element.addClass('current');
                 }
                 element.text(_cells[i]);
