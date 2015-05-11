@@ -203,11 +203,11 @@ var TuringMachine = function() {
                 var checkbox = $('#by-step');
                 if (!checkbox.is(':checked')) {
                     do {
-                    	// timer = setTimeout(function() {alert('asd');}, 1000);
-                    	// setTimeout(function() {_step();}, 1000);
-                        _step();
+                        if(!_step()) {
+                            break;
+                        }
                     } while (_currentState !== _finalState)
-                    console.log("Final state is achieved!")
+                    console.log("End of work!")
                     $('#run').prop('disabled', false);
                     $('#step').prop('disabled', true);
                     $('#stop').prop('disabled', true);
@@ -306,9 +306,6 @@ var TuringMachine = function() {
         //Шаг машины
         //
         _step = function() {
-            // if (_currentState === _finalState) {
-            //     _currentState
-            // }
             var _current = $('.cell.current');
 
             for (var i = 0; i < _program.length; i++) {
@@ -331,9 +328,11 @@ var TuringMachine = function() {
                             console.log('TODO: Нет предыдущей ячейки!');
                         }
                     }
-                    return;
+                    return true;
                 }
             }
+            console.log('There is no such rule :C');
+            return false;
         };
 
     return {
